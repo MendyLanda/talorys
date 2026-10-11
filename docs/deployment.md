@@ -55,6 +55,23 @@ refers to it.
 }
 ```
 
+## One Worker, without Pages
+
+`apps/agent/wrangler.standalone.jsonc` deploys the agent Worker with the web UI
+as static assets, so one Worker serves both. Use it with tools that deploy a
+single Worker:
+
+```bash
+npm run build -w @talorys/web
+cd apps/agent
+npx wrangler secret put OWNER_PASSWORD -c wrangler.standalone.jsonc
+npx wrangler secret put SESSION_SECRET -c wrangler.standalone.jsonc   # 32+ random characters
+npx wrangler deploy -c wrangler.standalone.jsonc
+```
+
+`OWNER_PASSWORD` is the plain password, for deploys that cannot hash it
+beforehand. When `OWNER_PASSWORD_HASH` is set, it takes precedence.
+
 ## Idempotency and recovery
 
 - The manifest records the installation id; re-runs reuse the same names.
