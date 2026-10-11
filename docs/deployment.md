@@ -70,7 +70,17 @@ npx wrangler deploy -c wrangler.standalone.jsonc
 ```
 
 `OWNER_PASSWORD` is the plain password, for deploys that cannot hash it
-beforehand. When `OWNER_PASSWORD_HASH` is set, it takes precedence.
+beforehand. It must pass the installer's strength check (10+ characters, mixed
+classes or 16+ characters, no common words); a weak one counts as not configured
+and `/api/health` reports `"password": false`. When `OWNER_PASSWORD_HASH` is set,
+it takes precedence.
+
+In this mode, changing `SESSION_SECRET` also discards a password changed in the
+UI: login reverts to `OWNER_PASSWORD`, and every device is signed out.
+
+The config names the Worker `talorys`, and `wrangler deploy` replaces any Worker
+of that name in the account. Change `name` (or pass `--name`) to deploy under
+another one.
 
 ## Idempotency and recovery
 

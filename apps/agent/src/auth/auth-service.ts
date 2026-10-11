@@ -62,13 +62,22 @@ export class AuthService {
     return isPasswordHash(this.secrets.passwordHash) ? this.secrets.passwordHash! : null;
   }
 
+  /** A valid hash, or a plain password that passes the same strength check as the installer. */
+  passwordConfigured(): boolean {
+    const { password } = this.secrets;
+    return this.secretHash() !== null || (!!password && checkPasswordStrength(password) === null);
+  }
+
   isConfigured(): boolean {
-    return (this.secretHash() !== null || !!this.secrets.password) && (this.secrets.sessionSecret?.length ?? 0) >= 32;
+    return this.passwordConfigured() && (this.secrets.sessionSecret?.length ?? 0) >= 32;
   }
 
   private requireConfigured(): { sessionSecret: string } {
     if (!this.isConfigured()) {
-      throw new AppError("NOT_CONFIGURED", "Owner credentials are not configured. Run the Talorys installer to set them.");
+      throw new AppError(
+        "NOT_CONFIGURED",
+        "Owner credentials are not configured. Run the Talorys installer, or set a strong OWNER_PASSWORD and SESSION_SECRET with `wrangler secret put`.",
+      );
     }
     return { sessionSecret: this.secrets.sessionSecret! };
   }

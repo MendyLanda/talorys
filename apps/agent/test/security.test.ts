@@ -191,6 +191,8 @@ describe("password change", () => {
       const { token } = await auth.login("Plain-secret-pass-1", freshIp(), "test");
       expect(await auth.validate(token)).not.toBeNull();
       await expect(auth.login("Wrong-secret-pass-1", freshIp(), "test")).rejects.toThrow("Incorrect password.");
+      const weak = new AuthService(ag.services.db, ag.services.settings, { ...secrets, password: "1234" });
+      expect(weak.isConfigured()).toBe(false);
       // Restore the original fingerprint for other tests.
       auth.revokeAllExcept(null);
       ag.services.settings.delete("auth.secret_fingerprint");
